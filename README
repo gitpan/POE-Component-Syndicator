@@ -232,12 +232,12 @@ EVENTS
   Local events
     The component will send the following POE events to its session.
 
-  "syndicator_started"
+   "syndicator_started"
     Called after the session has been started (like "_start" in POE::Kernel.
     This is where you should do your POE-related setup work such as adding
     new event handlers to the session.
 
-  "syndicator_stopped"
+   "syndicator_stopped"
     Called right before the session is about to die (like "_stop" in
     POE::Kernel).
 
@@ -279,9 +279,29 @@ EVENTS
     Terminating multiple Syndicators can be tricky. Check the "SIGNALS"
     section for a method of doing that.
 
-   Unhandled events
+   "_default"
     Any POE events sent to the Syndicator's session which do not have a
-    handler will generate "USER events" of the same name.
+    handler will go to the Syndicator's "_default" handler, will generate
+    "USER events" of the same name. If you install your own "_default"
+    handler, make sure you do the same thing before you handle an event:
+
+     use Object::Pluggable::Constants 'PLUGIN_EAT_ALL';
+
+     $poe_kernel->state('_default', $self, '__default');
+
+     sub __default {
+         my ($self, $event, $args) = @_[OBJECT, ARG0, ARG1];
+
+         # do nothing if a plugin eats the event
+         return if $self->send_user_event($event, [@$args]) == PLUGIN_EAT_ALL;
+
+         # handle the event
+         # ...
+     }
+
+    Note that the handler for the "_default" event must be named something
+    other than '_default', because that name is reserved for the plugin-type
+    default handler (see the Object::Pluggable docs).
 
   Output events
     The Syndicator will send the following events at various times. The

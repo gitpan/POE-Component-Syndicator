@@ -17,6 +17,7 @@ t/06_delays.t
 t/07_send_event_now.t
 t/08_send_event_next.t
 t/09_event_order.t
+t/10_default.t
 t/release-pod-syntax.t
 xt/perl_critic.t
 xt/perl_critic_t.t

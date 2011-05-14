@@ -3,7 +3,7 @@ BEGIN {
   $POE::Component::Syndicator::AUTHORITY = 'cpan:HINRIK';
 }
 BEGIN {
-  $POE::Component::Syndicator::VERSION = '0.01';
+  $POE::Component::Syndicator::VERSION = '0.02';
 }
 
 use strict;
@@ -56,10 +56,29 @@ sub _syndicator_init {
         types      => delete $args{types},
     );
 
+    if (ref $args{object_states} eq 'ARRAY') {
+        my $error = "Don't install handlers for _start or _stop. Use"
+                    . "_syndicator_started or _syndicator_stopped instead";
+        for (my $i = 1; $i <= $#{ $args{object_states} }; $i += 2) {
+            my $events = $args{object_states}[$i];
+            if (ref $events eq 'HASH') {
+                if (defined $events->{_start} || defined $events->{_stop}) {
+                    croak($error);
+                }
+            }
+            elsif (ref $events eq 'ARRAY') {
+                for my $event (@$events) {
+                    if ($event eq '_start' || $event eq '_stop') {
+                        croak($error);
+                    }
+                }
+            }
+        }
+    }
+
     # set up our POE session
     POE::Session->create(
         object_states => [
-            ($args{object_states} ? @{ $args{object_states} } : ()),
             $self => {
                 _start   => '_syndicator_start',
                 _default => '_syndicator_default',
@@ -76,6 +95,7 @@ sub _syndicator_init {
                 register
                 unregister
             )],
+            ($args{object_states} ? @{ $args{object_states} } : ()),
         ],
         ($args{options} ? (options => delete $args{options}) : ()),
         args => [%args],
@@ -710,13 +730,13 @@ event that was originally requested to be delayed.
 
 The component will send the following POE events to its session.
 
-=head2 C<syndicator_started>
+=head3 C<syndicator_started>
 
 Called after the session has been started (like C<_start> in
 L<POE::Kernel|POE::Kernel/Session Management>. This is where you should do
 your POE-related setup work such as adding new event handlers to the session.
 
-=head2 C<syndicator_stopped>
+=head3 C<syndicator_stopped>
 
 Called right before the session is about to die (like C<_stop> in
 L<POE::Kernel|POE::Kernel/Session Management>).
@@ -762,10 +782,30 @@ its session a C<shutdown> event manually to make it delete itself.
 Terminating multiple Syndicators can be tricky. Check the L</SIGNALS> section
 for a method of doing that.
 
-=head3 Unhandled events
+=head3 C<_default>
 
 Any POE events sent to the Syndicator's session which do not have a handler
-will generate L</USER events> of the same name.
+will go to the Syndicator's C<_default> handler, will generate
+L</USER events> of the same name. If you install your own C<_default>
+handler, make sure you do the same thing before you handle an event:
+
+ use Object::Pluggable::Constants 'PLUGIN_EAT_ALL';
+
+ $poe_kernel->state('_default', $self, '__default');
+
+ sub __default {
+     my ($self, $event, $args) = @_[OBJECT, ARG0, ARG1];
+
+     # do nothing if a plugin eats the event
+     return if $self->send_user_event($event, [@$args]) == PLUGIN_EAT_ALL;
+
+     # handle the event
+     # ...
+ }
+
+Note that the handler for the C<_default> event must be named something other
+than '_default', because that name is reserved for the plugin-type default
+handler (see the L<Object::Pluggable|Object::Pluggable/PLUGINS> docs).
 
 =head2 Output events
 

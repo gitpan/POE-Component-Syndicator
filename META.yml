@@ -26,5 +26,5 @@ resources:
   homepage: http://search.cpan.org/dist/POE-Component-Syndicator/
   license: http://dev.perl.org/licenses/
   repository: git://github.com/hinrik/poe-component-syndicator.git
-version: 0.01
+version: 0.02
 x_authority: cpan:HINRIK

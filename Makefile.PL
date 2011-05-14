@@ -25,7 +25,7 @@ my %WriteMakefileArgs = (
     'Object::Pluggable' => '1.29',
     'POE' => '1.311'
   },
-  'VERSION' => '0.01',
+  'VERSION' => '0.02',
   'test' => {
     'TESTS' => 't/*.t'
   }
