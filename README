@@ -246,14 +246,15 @@ EVENTS
     session.
 
    "register"
-    Takes N arguments: a list of event names that your session wants to
-    listen for, minus the prefix (specified in "_syndicator_init" in
-    "syndicator_init").
+    Takes any amount of arguments: a list of event names that your session
+    wants to listen for, minus the prefix (specified in "_syndicator_init"
+    in "syndicator_init").
 
      $kernel->post('my syndicator', 'register', qw(join part quit kick));
 
     Registering for the special event 'all' will cause it to send all events
-    to your session.
+    to your session. Calling it with no event names is equivalent to calling
+    it with 'all' as an argumente.
 
     Registering will generate a "syndicator_registered" event that your
     session can trap.
@@ -264,11 +265,12 @@ EVENTS
     components.
 
    "unregister"
-    Takes N arguments: a list of event names which you *don't* want to
-    receive. If you've previously done a "register" for a particular event
-    which you no longer care about, this event will tell the component to
-    stop sending them to you. (If you haven't, it just ignores you. No big
-    deal.)
+    Takes any amount of arguments: a list of event names which you *don't*
+    want to receive. If you've previously done a "register" for a particular
+    event which you no longer care about, this event will tell the component
+    to stop sending them to you. (If you haven't, it just ignores you. No
+    big deal.) Calling it with no event names is equivalent to calling it
+    with 'all' as an argument.
 
     If you have registered for the special event 'all', attempting to
     unregister individual events will not work. This is a 'feature'.

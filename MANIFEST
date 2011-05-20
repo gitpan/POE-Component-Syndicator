@@ -18,6 +18,7 @@ t/07_send_event_now.t
 t/08_send_event_next.t
 t/09_event_order.t
 t/10_default.t
+t/11_bare_register.t
 t/release-pod-syntax.t
 xt/perl_critic.t
 xt/perl_critic_t.t
