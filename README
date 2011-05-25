@@ -223,7 +223,7 @@ PUBLIC METHODS
   "delay_remove"
     This method removes a previously scheduled delayed event from the
     component. Takes one argument, the "alarm_id" that was returned by a
-    "delay" method call. Returns an arrayref of arguements to the event that
+    "delay" method call. Returns an arrayref of arguments to the event that
     was originally requested to be delayed.
 
      my $arrayref = $component->delay_remove($alarm_id);

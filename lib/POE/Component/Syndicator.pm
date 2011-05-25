@@ -3,7 +3,7 @@ BEGIN {
   $POE::Component::Syndicator::AUTHORITY = 'cpan:HINRIK';
 }
 BEGIN {
-  $POE::Component::Syndicator::VERSION = '0.04';
+  $POE::Component::Syndicator::VERSION = '0.05';
 }
 
 use strict;
@@ -317,7 +317,7 @@ sub delay {
 
     croak('No time specified') if !defined $time;
 
-    return $self->call('_syndicator_delay', $arrayref, $time);
+    return $self->call('_syndicator_delay', [@$arrayref], $time);
 }
 
 sub _syndicator_delay {
@@ -343,10 +343,10 @@ sub _syndicator_delay_remove {
 
     my @old_alarm_list = $kernel->alarm_remove($alarm_id);
     if (@old_alarm_list) {
-        splice @old_alarm_list, 1, 1;
+        my $args = $old_alarm_list[-1];
         my $prefix = $self->{_syndicator}{prefix};
-        $self->send_event("${prefix}delay_removed", $alarm_id, @old_alarm_list);
-        return \@old_alarm_list;
+        $self->send_event("${prefix}delay_removed", $alarm_id, $args);
+        return $args;
     }
 
     return;
@@ -719,7 +719,7 @@ wishes to delay the command being posted.
 
 This method removes a previously scheduled delayed event from the component.
 Takes one argument, the C<alarm_id> that was returned by a
-L<C<delay>|/delay> method call. Returns an arrayref of arguements to the
+L<C<delay>|/delay> method call. Returns an arrayref of arguments to the
 event that was originally requested to be delayed.
 
  my $arrayref = $component->delay_remove($alarm_id);
