@@ -3,11 +3,11 @@ BEGIN {
   $POE::Component::Syndicator::AUTHORITY = 'cpan:HINRIK';
 }
 BEGIN {
-  $POE::Component::Syndicator::VERSION = '0.05';
+  $POE::Component::Syndicator::VERSION = '0.06';
 }
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 use Carp qw(carp croak);
 use Object::Pluggable::Constants qw(:ALL);
 use POE;
@@ -263,7 +263,7 @@ sub _syndicator_reg {
         $self->{_syndicator}{sessions}{$sender_id}{ref} = $sender_id;
 
         if (!$self->{_syndicator}{sessions}{$sender_id}{refcnt}
-            && $sender_id != $self->{_syndicator}{session_id}) {
+            && $sender_id ne $self->{_syndicator}{session_id}) {
             $poe_kernel->refcount_increment($sender_id, REFCOUNT_TAG);
         }
 
